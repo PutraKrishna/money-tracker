@@ -1,0 +1,10 @@
+# Abaikan hasil compile
+/build/
+/dist/
+/nbproject/private/
+*.class
+*.jar
+
+# Abaikan file sistem
+.DS_Store
+Thumbs.db
