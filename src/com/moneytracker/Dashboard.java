@@ -6,9 +6,20 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+// these imports are for the "Print Report" button
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.view.JasperViewer;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.HashMap;
+
 public class Dashboard extends javax.swing.JPanel {
     
     DefaultTableModel model;
+    private double totIn = 0;
+    private double totOut = 0;
     private Transaction transactionPanel;
     
     public Dashboard() {
@@ -42,8 +53,8 @@ public class Dashboard extends javax.swing.JPanel {
         model.getDataVector().removeAllElements();
         model.fireTableDataChanged();
         
-        double totIn = 0;
-        double totOut = 0;
+        totIn = 0;
+        totOut = 0;
 
         try {
             Connection c = Koneksi.getKoneksi();
@@ -121,7 +132,6 @@ public class Dashboard extends javax.swing.JPanel {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(700, 436));
 
-        jScrollPane1.setBackground(new java.awt.Color(245, 245, 245));
         jScrollPane1.setBorder(null);
 
         tabelTransaksi.setBackground(new java.awt.Color(245, 245, 245));
@@ -148,10 +158,8 @@ public class Dashboard extends javax.swing.JPanel {
         jPanel3.setPreferredSize(new java.awt.Dimension(230, 140));
 
         jLabel1.setFont(new java.awt.Font("Google Sans", 0, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Income");
 
-        jScrollPane2.setBackground(new java.awt.Color(245, 245, 245));
         jScrollPane2.setBorder(null);
         jScrollPane2.setForeground(new java.awt.Color(245, 245, 245));
 
@@ -194,10 +202,8 @@ public class Dashboard extends javax.swing.JPanel {
         jPanel4.setPreferredSize(new java.awt.Dimension(230, 140));
 
         jLabel2.setFont(new java.awt.Font("Google Sans", 0, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Expense");
 
-        jScrollPane3.setBackground(new java.awt.Color(245, 245, 245));
         jScrollPane3.setBorder(null);
 
         lblTotalExpense.setEditable(false);
@@ -205,7 +211,6 @@ public class Dashboard extends javax.swing.JPanel {
         lblTotalExpense.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         lblTotalExpense.setFont(new java.awt.Font("Google Sans", 1, 24)); // NOI18N
         lblTotalExpense.setForeground(new java.awt.Color(255, 153, 153));
-        lblTotalExpense.setCaretColor(new java.awt.Color(0, 0, 0));
         lblTotalExpense.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         lblTotalExpense.setPreferredSize(new java.awt.Dimension(62, 50));
         lblTotalExpense.setSelectedTextColor(new java.awt.Color(0, 0, 0));
@@ -242,10 +247,8 @@ public class Dashboard extends javax.swing.JPanel {
         jPanel5.setPreferredSize(new java.awt.Dimension(230, 140));
 
         jLabel3.setFont(new java.awt.Font("Google Sans", 0, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setText("Total");
 
-        jScrollPane4.setBackground(new java.awt.Color(245, 245, 245));
         jScrollPane4.setBorder(null);
 
         lblSaldoAkhir.setEditable(false);
@@ -292,6 +295,11 @@ public class Dashboard extends javax.swing.JPanel {
         jButton1.setText("Print Report");
         jButton1.setBorder(null);
         jButton1.setBorderPainted(false);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -333,7 +341,6 @@ public class Dashboard extends javax.swing.JPanel {
         jPanel7.setPreferredSize(new java.awt.Dimension(700, 100));
 
         jLabel5.setFont(new java.awt.Font("Google Sans", 1, 36)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(0, 0, 0));
         jLabel5.setText("Dashboard");
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
@@ -359,6 +366,25 @@ public class Dashboard extends javax.swing.JPanel {
     private void tabelTransaksiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelTransaksiMouseClicked
 
     }//GEN-LAST:event_tabelTransaksiMouseClicked
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        try {
+            Map<String, Object> params = new HashMap<>();
+
+            params.put("income", totIn);
+            params.put("expense", totOut);
+            params.put("total", totIn - totOut);
+
+            InputStream is = getClass().getResourceAsStream("/report/moneyTrackerReport.jasper");
+            Connection c = Koneksi.getKoneksi();
+
+            JasperPrint jp = JasperFillManager.fillReport(is, params, c);
+            JasperViewer.viewReport(jp, false);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
