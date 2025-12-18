@@ -13,6 +13,28 @@ public class Transaction extends javax.swing.JPanel {
     private Dashboard dashboardPanel;
     DefaultTableModel modelLocal;
     
+    // Method Helper untuk mengambil Saldo Real-time dari Database
+private double getSaldoSaatIni() {
+    double totalMasuk = 0;
+    double totalKeluar = 0;
+    
+    try {
+        java.sql.Connection c = Koneksi.getKoneksi();
+        // Hitung total Income
+        java.sql.ResultSet rIn = c.createStatement().executeQuery("SELECT SUM(jumlah) AS total FROM transaksi WHERE jenis = 'Income'");
+        if(rIn.next()) totalMasuk = rIn.getDouble("total");
+        
+        // Hitung total Expense
+        java.sql.ResultSet rOut = c.createStatement().executeQuery("SELECT SUM(jumlah) AS total FROM transaksi WHERE jenis = 'Expense'");
+        if(rOut.next()) totalKeluar = rOut.getDouble("total");
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    return totalMasuk - totalKeluar;
+}
+    
     public Transaction() {
         initComponents();
 //        ImageIcon icon = new ImageIcon(getClass().getResource("/com/moneytracker/image/logo2.png"));
@@ -347,16 +369,53 @@ public class Transaction extends javax.swing.JPanel {
         try {
             if(txtJumlah.getText().isEmpty()) throw new Exception("Amount is required!");
 
+            // Bersihkan format uang
+            String jmlRaw = txtJumlah.getText().replace("Rp ", "").replace(".", "").replace(",", "");
+            double inputJumlah = Double.parseDouble(jmlRaw);
+
+            // --- VALIDASI 1: Tetap BLOKIR jika Negatif (Karena tidak logis) ---
+            if (inputJumlah < 0) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                    "Warning: Nominal cannot be negative!", 
+                    "Input Error", 
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return; // Stop
+            }
+
+            // --- VALIDASI 2 (REVISI): PERINGATAN SALDO (TAPI BOLEH LANJUT) ---
+            if (rbExpense.isSelected()) {
+                double saldoSekarang = getSaldoSaatIni();
+                
+                if (inputJumlah > saldoSekarang) {
+                    // Gunakan ConfirmDialog (Yes/No)
+                    int jawab = javax.swing.JOptionPane.showConfirmDialog(this, 
+                        "Warning: Insufficient Balance! \n" +
+                        "Current Balance: Rp " + String.format("%,.0f", saldoSekarang) + "\n" +
+                        "Expense Amount: Rp " + String.format("%,.0f", inputJumlah) + "\n\n" +
+                        "Do you want to continue saving this transaction?", 
+                        "Over Budget Warning", 
+                        javax.swing.JOptionPane.YES_NO_OPTION,
+                        javax.swing.JOptionPane.WARNING_MESSAGE);
+                    
+                    // Jika user pilih NO/CANCEL/CLOSE, kita batalkan simpan
+                    if (jawab != javax.swing.JOptionPane.YES_OPTION) {
+                        return; 
+                    }
+                    // Jika user pilih YES, kode akan lanjut ke bawah (Simpan)
+                }
+            }
+            
+            // --- PROSES SIMPAN (Tidak Berubah) ---
             String tampilanTanggal = txtTanggal.getText();
-            SimpleDateFormat formatUI = new SimpleDateFormat("d/M/yyyy");
-            SimpleDateFormat formatMySQL = new SimpleDateFormat("yyyy-MM-dd");
+            java.text.SimpleDateFormat formatUI = new java.text.SimpleDateFormat("d/M/yyyy");
+            java.text.SimpleDateFormat formatMySQL = new java.text.SimpleDateFormat("yyyy-MM-dd");
             String tanggalSiapSimpan = formatMySQL.format(formatUI.parse(tampilanTanggal));
 
             com.moneytracker.Transaksi tr = buatObjectTransaksi();
 
-            Connection c = Koneksi.getKoneksi();
+            java.sql.Connection c = Koneksi.getKoneksi();
             String sql = "INSERT INTO transaksi (tanggal, jenis, jumlah, kategori, deskripsi) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement p = c.prepareStatement(sql);
+            java.sql.PreparedStatement p = c.prepareStatement(sql);
 
             p.setString(1, tanggalSiapSimpan);
             p.setString(2, tr.getJenis());
@@ -365,20 +424,17 @@ public class Transaction extends javax.swing.JPanel {
             p.setString(5, tr.getDeskripsi());
 
             p.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Data saved successfully!");
+            
+            javax.swing.JOptionPane.showMessageDialog(this, "Data saved successfully!");
             
             kosongkanForm();
-            
-            // --- SINKRONISASI ---
-            loadLocalData(); // 1. Refresh Tabel di sini (Transaction)
-            
-            if(dashboardPanel != null) {
-                dashboardPanel.refreshData(); // 2. Refresh Tabel di sana (Dashboard)
-            }
-            // --------------------
+            loadLocalData(); 
+            if(dashboardPanel != null) dashboardPanel.refreshData();
 
+        } catch (NumberFormatException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Amount must be a valid number!");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
     }//GEN-LAST:event_btnSimpanActionPerformed
 
