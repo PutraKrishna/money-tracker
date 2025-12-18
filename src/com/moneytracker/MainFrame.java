@@ -55,12 +55,12 @@ public class MainFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(245, 245, 245));
+        jPanel1.setBackground(new java.awt.Color(115, 175, 111));
         jPanel1.setPreferredSize(new java.awt.Dimension(200, 500));
 
         btnDashboard.setBackground(new java.awt.Color(204, 255, 204));
         btnDashboard.setFont(new java.awt.Font("Google Sans", 1, 24)); // NOI18N
-        btnDashboard.setForeground(new java.awt.Color(0, 0, 0));
+        btnDashboard.setForeground(new java.awt.Color(255, 255, 255));
         btnDashboard.setText("Dashboard");
         btnDashboard.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 1, 1));
         btnDashboard.setBorderPainted(false);
@@ -75,7 +75,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         btnTransaction.setBackground(new java.awt.Color(204, 255, 204));
         btnTransaction.setFont(new java.awt.Font("Google Sans", 1, 24)); // NOI18N
-        btnTransaction.setForeground(new java.awt.Color(102, 102, 102));
+        btnTransaction.setForeground(new java.awt.Color(255, 255, 255));
         btnTransaction.setText("Transaction");
         btnTransaction.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 1, 1));
         btnTransaction.setBorderPainted(false);
@@ -88,15 +88,20 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        btnExit.setBackground(new java.awt.Color(204, 255, 204));
+        btnExit.setBackground(new java.awt.Color(204, 0, 0));
         btnExit.setFont(new java.awt.Font("Google Sans", 1, 24)); // NOI18N
-        btnExit.setForeground(new java.awt.Color(255, 51, 51));
+        btnExit.setForeground(new java.awt.Color(204, 0, 0));
         btnExit.setText("Exit");
         btnExit.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 1, 1));
         btnExit.setBorderPainted(false);
         btnExit.setContentAreaFilled(false);
         btnExit.setFocusPainted(false);
         btnExit.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -112,13 +117,12 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(155, Short.MAX_VALUE)
                 .addComponent(btnDashboard, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnTransaction, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(181, 181, 181)
-                .addComponent(btnExit, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(187, 187, 187)
+                .addComponent(btnExit, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.WEST);
@@ -140,6 +144,18 @@ public class MainFrame extends javax.swing.JFrame {
     private void btnTransactionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTransactionActionPerformed
         pindahHalaman(new Transaction());
     }//GEN-LAST:event_btnTransactionActionPerformed
+
+    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
+        // Tampilkan Konfirmasi
+    int pilih = javax.swing.JOptionPane.showConfirmDialog(this, 
+            "Are you sure you want to exit?", 
+            "Exit Application", 
+            javax.swing.JOptionPane.YES_NO_OPTION);
+    
+    if (pilih == javax.swing.JOptionPane.YES_OPTION) {
+        System.exit(0); // Matikan total aplikasi
+    }
+    }//GEN-LAST:event_btnExitActionPerformed
 
     /**
      * @param args the command line arguments
