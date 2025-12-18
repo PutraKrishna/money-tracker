@@ -367,13 +367,22 @@ private double getSaldoSaatIni() {
 
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
         try {
+            // validasi jenisnya
+            if (!rbIncome.isSelected() && !rbExpense.isSelected()) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                    "Please select transaction type (Income or Expense)!", 
+                    "Input Error", 
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return; // Stop, jangan lanjut
+            }
+            
             if(txtJumlah.getText().isEmpty()) throw new Exception("Amount is required!");
 
             // Bersihkan format uang
             String jmlRaw = txtJumlah.getText().replace("Rp ", "").replace(".", "").replace(",", "");
             double inputJumlah = Double.parseDouble(jmlRaw);
 
-            // --- VALIDASI 1: Tetap BLOKIR jika Negatif (Karena tidak logis) ---
+            // validasi nominal negatif
             if (inputJumlah < 0) {
                 javax.swing.JOptionPane.showMessageDialog(this, 
                     "Warning: Nominal cannot be negative!", 
@@ -382,7 +391,7 @@ private double getSaldoSaatIni() {
                 return; // Stop
             }
 
-            // --- VALIDASI 2 (REVISI): PERINGATAN SALDO (TAPI BOLEH LANJUT) ---
+            // validasi penringatan saldo
             if (rbExpense.isSelected()) {
                 double saldoSekarang = getSaldoSaatIni();
                 
@@ -405,7 +414,7 @@ private double getSaldoSaatIni() {
                 }
             }
             
-            // --- PROSES SIMPAN (Tidak Berubah) ---
+            
             String tampilanTanggal = txtTanggal.getText();
             java.text.SimpleDateFormat formatUI = new java.text.SimpleDateFormat("d/M/yyyy");
             java.text.SimpleDateFormat formatMySQL = new java.text.SimpleDateFormat("yyyy-MM-dd");
